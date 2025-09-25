@@ -82,4 +82,3 @@ vendor/
 - Diagrama entidad-relación: [`docs/EER_Diagram.pdf`](docs/EER_Diagram.pdf)
 - Script de base de datos: [`docs/script_db.sql`](docs/script_db.sql)
 - Pruebas unitarias: [`tests/PacienteModelTest.php`](tests/PacienteModelTest.php)
-
