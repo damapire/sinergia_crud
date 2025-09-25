@@ -1,66 +1,75 @@
 <?php
 namespace App\Core;
 
-/**
- * Clase principal del sistema MVC
- *
- * Se encarga de recibir la URL, identificar el controlador y método a ejecutar,
- * y pasar los parámetros necesarios. Permite rutas simples como /login y /logout.
- */
 class App {
-    /**
-     * Nombre del controlador por defecto
-     * Método por defecto
-     * Parámetros de la URL
-     */
-    protected $controller = 'UserController';
-    protected $method = 'login';
-    protected $params = [];
-
-    /**
-     * Constructor
-     * analiza la URL y ejecuta el controlador y método correspondiente.
-     */
     public function __construct() {
         $url = $this->parseUrl();
-        $simpleRoutes = [
-            'login'  => ['UserController', 'login'],
-            'logout' => ['UserController', 'logout'],
-        ];
 
+        // Rutas para pacientes
+        if (isset($url[0]) && strtolower($url[0]) === 'pacientes') {
+            require_once __DIR__ . '/../controllers/PacienteController.php';
+            $controller = new \PacienteController();
 
-        // Si la ruta es simple, asigna el controlador y método
-        if (isset($url[0]) && isset($simpleRoutes[strtolower($url[0])])) {
-            $this->controller = $simpleRoutes[strtolower($url[0])][0];
-            $this->method     = $simpleRoutes[strtolower($url[0])][1];
-            unset($url[0]);
-        } else if (isset($url[0]) && file_exists(__DIR__ . '/../controllers/' . $url[0] . '.php')) {
-            $this->controller = $url[0];
-            unset($url[0]);
+            // /pacientes/{id}
+            if (isset($url[1]) && is_numeric($url[1])) {
+                $id = $url[1];
+                switch ($_SERVER['REQUEST_METHOD']) {
+                    case 'GET':
+                        $controller->show($id);
+                        break;
+                    case 'PUT':
+                        $controller->update($id);
+                        break;
+                    case 'DELETE':
+                        $controller->delete($id);
+                        break;
+                    default:
+                        http_response_code(405);
+                        echo json_encode(['error' => 'Método no permitido']);
+                }
+                return;
+            }
+
+            // /pacientes
+            switch ($_SERVER['REQUEST_METHOD']) {
+                case 'GET':
+                    $controller->index();
+                    break;
+                case 'POST':
+                    $controller->store();
+                    break;
+                default:
+                    http_response_code(405);
+                    echo json_encode(['error' => 'Método no permitido']);
+            }
+            return;
         }
 
-        require_once __DIR__ . '/../controllers/' . $this->controller . '.php';
-        $this->controller = new $this->controller;
-
-
-        // Si hay método en la URL, lo asigna
-        if (isset($url[1]) && method_exists($this->controller, $url[1])) {
-            $this->method = $url[1];
-            unset($url[1]);
+        // Rutas para usuario
+        if (isset($url[0]) && strtolower($url[0]) === 'login') {
+            require_once __DIR__ . '/../controllers/UserController.php';
+            $controller = new \UserController();
+            $controller->login();
+            return;
         }
-        $this->params = $url ? array_values($url) : [];
-        // Ejecuta el método del controlador con los parámetros
-        call_user_func_array([$this->controller, $this->method], $this->params);
+        if (isset($url[0]) && strtolower($url[0]) === 'logout') {
+            require_once __DIR__ . '/../controllers/UserController.php';
+            $controller = new \UserController();
+            $controller->logout();
+            return;
+        }
+
+        // Si no coincide ninguna ruta, error 404
+        http_response_code(404);
+        echo json_encode(['error' => 'Ruta no encontrada']);
     }
 
-    /**
-     * Procesa la URL recibida
-     *
-     */
     public function parseUrl() {
-        if (isset($_GET['url'])) {
-            return explode('/', filter_var(rtrim($_GET['url'], '/'), FILTER_SANITIZE_URL));
-        }
-        return [$this->controller];
+        $requestUri = $_SERVER['REQUEST_URI'];
+        $scriptName = $_SERVER['SCRIPT_NAME'];
+        $path = preg_replace('#^' . preg_quote(dirname($scriptName), '#') . '#', '', $requestUri);
+        $path = preg_replace('#\?.*$#', '', $path);
+        $path = trim($path, '/');
+        return $path ? explode('/', filter_var($path, FILTER_SANITIZE_URL)) : [];
     }
 }
