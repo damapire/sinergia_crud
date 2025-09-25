@@ -12,7 +12,7 @@ require_once __DIR__ . '/Database.php'; // conexión a la base de datos
  *
  * Permite obtener información de los usuarios desde la base de datos.
  */
-class UserModel extends App\Core\Model {
+class UserModel {
     private $db;
 
     /**

@@ -17,7 +17,7 @@ class Auth {
      *
      */
     public static function verifyToken($token) {
-        $config = require(__DIR__ . '/../config/config.php');
+        $config = require(__DIR__ . '/../../config/config.php');
         $secretKey = $config['jwt_secret'];
         try {
             $decoded = JWT::decode($token, new Key($secretKey, 'HS256'));
