@@ -63,4 +63,3 @@ tests/
 - damapire
 
 ## Licencia
-MIT
