@@ -1,7 +1,7 @@
 <?php
 return [
     'db_host' => 'localhost',
-    'db_user' => '',
-    'db_pass' => '',
-    'db_name' => '',
+    'db_user' => 'root',
+    'db_pass' => 'admin',
+    'db_name' => 'sinergia',
 ];
