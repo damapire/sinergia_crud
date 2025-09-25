@@ -1,1 +1,16 @@
 /script_db.sql
+# Ignorar dependencias de Composer
+/vendor/
+/composer.lock
+
+# Ignorar archivos de configuración sensibles
+/config/config.php
+
+# Ignorar archivos temporales y de sistema
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Ignorar archivos de entorno
+.env
