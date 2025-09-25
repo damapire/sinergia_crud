@@ -4,7 +4,7 @@
  */
 require_once __DIR__ . '/Database.php';
 
-class PacienteModel extends App\Core\Model {
+class PacienteModel {
     private $db;
 
     public function __construct() {
